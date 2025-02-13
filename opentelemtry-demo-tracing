@@ -1,0 +1,15 @@
+ export DASH0_OLTP_ENDPOINT=https://api.us-west-2.aws.dash0.com
+ export DASH0_AUTH_TOKEN=auth_tSv8LaKQQT9MkCY3Y3Q6Bybg4mk1jMfj
+
+# install linkerd
+curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install-edge | sh
+export PATH=$PATH:/home/control/.linkerd2/bin
+linkerd version
+linkerd check --pre
+linkerd install --crds | kubectl apply -f -
+linkerd --set proxyInit.runAsRoot=true  install | kubectl apply -f -
+linkerd check
+kubectl get pods -n linkerd && kubectl get pods -n dash0-system
+linkerd viz install | kubectl apply -f -
+linkerd check
+
