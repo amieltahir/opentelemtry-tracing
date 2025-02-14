@@ -17,7 +17,8 @@ kubectl get pods -A
 
 clone demo app:
 
-https://github.com/open-telemetry/opentelemetry-demo.git
+git clone https://github.com/dash0hq/opentelemetry-demo.git
+
 
 install yq & bat
 
@@ -26,6 +27,57 @@ mkdir -p ~/.local/bin
 ln -s /usr/bin/batcat ~/.local/bin/bat
 
 sudo snap install yq
+
+=====
+
+CLEAN UP
+
+helm search repo open-telemetry
+
+NAME                                    CHART VERSION   APP VERSION     DESCRIPTION
+open-telemetry/opentelemetry-collector  0.116.0         0.119.0         OpenTelemetry Collector Helm chart for Kubernetes
+open-telemetry/opentelemetry-demo       0.35.1          1.12.0          opentelemetry demo helm chart
+open-telemetry/opentelemetry-ebpf       0.1.4           v0.10.2         OpenTelemetry eBPF Helm chart for Kubernetes
+open-telemetry/opentelemetry-kube-stack 0.4.0           0.117.0         OpenTelemetry Quickstart chart for Kubernetes. ...
+open-telemetry/opentelemetry-operator   0.80.0          0.117.0         OpenTelemetry Operator Helm chart for Kubernetes
+control@control:~$ helm list open-telemetry
+Error: "helm list" accepts no arguments
+
+Usage:  helm list [flags]
+control@control:~$ helm list
+NAME                    NAMESPACE       REVISION        UPDATED                                 STATUS          CHART                           APP VERSION
+opentelemetry-demo      default         1               2025-02-13 17:31:14.141368788 -0500 EST deployed        opentelemetry-demo-0.35.1       1.12.0
+
+control@control:~$ cat /var/tmp/pods.txt
+NAME                                     READY   STATUS        RESTARTS   AGE
+adservice-6dd5f7848b-9bwjb               0/1     Terminating   0          92m
+cartservice-b9fc55cc9-pj4pz              0/1     Terminating   0          92m
+checkoutservice-99758cb9d-h5gsj          0/1     Terminating   0          92m
+currencyservice-859ccd647d-n9k4g         0/1     Terminating   0          92m
+flagd-6dc4878984-nwbjk                   0/2     Terminating   0          92m
+frauddetectionservice-6ff687799f-5vsjw   0/1     Terminating   0          92m
+frontend-549b6f4c86-q2f22                0/1     Terminating   0          92m
+frontendproxy-588df4c84d-g5rtx           0/1     Terminating   0          92m
+grafana-5bcfb656b8-45lh2                 0/1     Terminating   0          92m
+imageprovider-6c98c9b594-7bml5           0/1     Terminating   0          92m
+jaeger-5755b987dd-8jgfh                  0/1     Terminating   0          92m
+kafka-65685ffdc4-xrbkj                   0/1     Terminating   0          92m
+loadgenerator-5589b9849f-6hczn           0/1     Terminating   0          92m
+otelcol-5889db9b87-cmsjs                 0/1     Terminating   0          92m
+productcatalogservice-6b84559bbf-h9dkn   0/1     Terminating   0          92m
+
+
+kubectl get pods -n default > /var/tmp/pods.txt && cat /var/tmp/pods.txt | awk '{ print $1 } ' > /var/tmp/pods.names.txt
+sed -i '/NAME/d' pods.names.txt
+
+control@control:/var/tmp$ {
+> while read x;
+> do
+> kubectl  delete pod $x --grace-period=0 --force >> pods.log
+> done < pods.names.txt
+> }
+
+
 
 
 
