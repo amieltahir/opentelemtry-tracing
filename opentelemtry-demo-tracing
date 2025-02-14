@@ -28,6 +28,17 @@ ln -s /usr/bin/batcat ~/.local/bin/bat
 
 sudo snap install yq
 
+## inject 
+
+yq eval -i '.items[] | select(.kind == "ConfigMap" and .metadata.name == "otelcol-config").data."otel-collector-config.yaml" += "\n    exporters:\n      otlphttp:\n        endpoint: ${DASH0_OLTP_ENDPOINT}\n        headers:\n          Authorization: \"Bearer ${DASH0_AUTH_TOKEN}\""' opentelemetry-demo.yaml
+yq eval -i '.items[] | select(.kind == "Deployment" and .metadata.name == "opentelemetry-demo-otelcol").spec.template.spec.containers[].env += [{"name": "DASH0_OLTP_ENDPOINT", "value": "https://api.us-west-2.aws.dash0.com"}, {"name": "DASH0_AUTH_TOKEN", "valueFrom": {"secretKeyRef": {"name": "dash0-authorization-secret", "key": "DASH0_AUTH_TOKEN"}}}]' opentelemetry-demo.yaml
+
+## check syntax
+
+yq e '.' opentelemetry-demo.yaml > /dev/null && echo "YAML is valid" || echo "YAML has issues"
+
+
+
 =====
 
 CLEAN UP
